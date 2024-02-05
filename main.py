@@ -14,6 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TIMEOUT_SECONDS = 30
+
 
 def open_browser(
         profileDirectory: str,
@@ -46,49 +48,49 @@ def recovery_from_words(
 ):
     driver.get(f"chrome-extension://{extension_id}/home.html#onboarding/welcome")
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(EC.presence_of_element_located(
         (By.ID, "onboarding__terms-checkbox")
     )).click()  # click the first agree button
 
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(EC.element_to_be_clickable(
         (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/ul/li[3]/button')
     )).click()  # click the second agree button
 
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(EC.element_to_be_clickable(
         (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div/button[1]')
     )).click()  # wait for the recovery page to load
 
     for i in range(len(words)):  # input the recovery words
-        input_element = WebDriverWait(driver, 10).until(
+        input_element = WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
             EC.presence_of_element_located(
                 (By.ID, f'import-srp__srp-word-{i}'),
             ))
         input_element.send_keys(words[i])
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.element_to_be_clickable(
             (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[4]/div/button'),
         ),
     ).click()  # click the confirm button
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.presence_of_element_located(
             (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[1]/label/input'),
         )
     ).send_keys(localPassword)  # input the local password
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.presence_of_element_located(
             (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[2]/label/input'),
         ),
     ).send_keys(localPassword)  # confirm the local password
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.presence_of_element_located(
             (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[3]/label/input'),
         )
     ).click()  # understand the risk
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.element_to_be_clickable(
             (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/button'),
         )
@@ -104,13 +106,13 @@ def load_recover_words_from_config(configFile: str):
 def login_to_nfprompt(driver: webdriver.Chrome, localPassword: str):
     driver.get("https://nfprompt.io/earn")
     driver.switch_to.window(driver.current_window_handle)
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.element_to_be_clickable(
             (By.XPATH, '//*[@id="__nuxt"]/div[2]/div[2]/div/div[2]/div[1]/div[2]/button'),
         )
     ).click()  # click login
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
         EC.presence_of_element_located(
             (By.XPATH, '/html/body/div[3]/div/div[2]/div/div[2]/div/div/div/div[1]'),
         )
@@ -120,6 +122,98 @@ def login_to_nfprompt(driver: webdriver.Chrome, localPassword: str):
     time.sleep(2)
     driver.execute_script(
         'document.querySelector("body > w3m-modal").shadowRoot.querySelector("#w3m-modal > div > div > w3m-modal-router").shadowRoot.querySelector("div > div > w3m-connect-wallet-view").shadowRoot.querySelector("w3m-desktop-wallet-selection").shadowRoot.querySelector("w3m-modal-footer > div.w3m-grid > w3m-wallet-button:nth-child(1)").shadowRoot.querySelector("button").click()')
+
+    while len(driver.window_handles) == 1:
+        time.sleep(0.1)
+    prev_two = driver.window_handles
+    while prev_two == driver.window_handles:
+        time.sleep(0.1)
+
+    driver.switch_to.window(driver.window_handles[-1])
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.presence_of_element_located(
+            (By.ID, "password")
+        )
+    ).send_keys(localPassword)
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div[3]/div/div/div/div/button')
+        )
+    ).click()
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button')
+        )
+    ).click()
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button')
+        )
+    ).click()
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[2]/div[3]/button[2]')
+        )
+    ).click()
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[2]/div/button[2]')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="popover-content"]/div[2]/div/section/div[3]/button')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="popover-content"]/div/div/section/div[1]/div/button')
+        )
+    ).click()
+
+    driver.switch_to.window(driver.window_handles[0])
+    driver.refresh()
+
+    driver.switch_to.window(driver.window_handles[-1])
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[4]/footer/button[2]')
+        )
+    ).click()
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="app-content"]/div/div/div/div[4]/footer/button[2]')
+        )
+    ).click()
+
+    driver.switch_to.window(driver.window_handles[0])
+
+    WebDriverWait(driver, DEFAULT_TIMEOUT_SECONDS).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="__nuxt"]/div[2]/div[2]/div/div[2]/div[1]/div[1]/div[1]/div/button')
+        )
+    ).click()
 
 
 def clean_all_other_windows(driver: webdriver.Chrome):
