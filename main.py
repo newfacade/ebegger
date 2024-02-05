@@ -130,7 +130,7 @@ def clean_all_other_windows(driver: webdriver.Chrome):
     """
     current = driver.current_window_handle
     for handle in driver.window_handles:
-        if handle != driver.current_window_handle:
+        if handle != current:
             driver.switch_to.window(handle)
             driver.close()
     driver.switch_to.window(current)
